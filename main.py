@@ -1,88 +1,104 @@
 # 파일이름 : 부대 체력측정 관리 시스템
 # 작 성 자 : 김대홍
 soldiers = []
-total_push = 0
-push_list = []
+total_push_ups = 0
+push_ups_list = []
 
 print("="*40)
-print("[신규 용사 체력 측정 판독기]")
-print("="*40)
-for i in range(3):
-    print(f"\n---{i+1}번째 용사 입력---")
-    rank = input("계급을 입력하세요: ")
-    name = input("이름을 입력하세요: ")
+def display_menu():
+    print("\n" + "=" * 50)
+    print("체력측정 관리 시스템")
+    print("="*50)
+    print("1. 신규 용사 체력 기록 등록")
+    print(" 2. 부대 체력측정 종합 통계 조회")
+    print(" 3. 프로그램 종료")
+    print("=" * 50)
+    choice = input("원하시는 메뉴 번호를 입력하세요: ")
+    return choice
 
-    run_m = int(input("3km 달리기 (분): "))
-    run_s = int(input("3km 달리기 (초): "))
-    run_sec = (run_m*60) + run_s
+def evaluate_grade(run_time, push_ups, situps) :
+    if run_time <= 12.30: run_grade = "특급"
+    elif run_time <= 13.30: run_grade = "1급"
+    elif run_time <= 14.30: run_grade = "2급"
+    elif run_time <= 15.30: run_grade = "3급"
+    else: run_grade = "불합격"
 
-    push = int(input("팔굽혀펴기 (개수): "))
-    sit = int(input("윗몸일으키기 (개수): "))
+    if push_ups >= 72 : push_grade = "특급"
+    elif push_ups >= 64 : push_grade = "1급"
+    elif pushups >= 56: push_grade = "2급"
+    elif pushups >= 48: push_grade = "3급"
+    else: push_grade = "불합격"
 
-    if run_sec < 0 or sit < 0:
-        print(">> [오류] 잘못된 값입니다. 다음으로 넘어갑니다")
-        continue
+    if situps >= 86: sit_grade = "특급"
+    elif situps >= 78: sit_grade = "1급"
+    elif situps >= 70: sit_grade = "2급"
+    elif situps >= 62: sit_grade = "3급"
+    else: sit_grade = "불합격"
 
-    total_push += push
-
-    if run_sec <= 750:
-        run_grade = "특급"
-    elif run_sec <= 810:
-        run_grade = "1급"
-    elif run_sec <= 870:
-        run_grade = "2급"
-    elif run_sec <= 930:
-        run_grade = "3급"
-    else:
-        run_grade = "불합격"
-
-    if push >= 72:
-        push_grade = "특급"
-    elif push >= 64: 
-        push_grade = "1급"
-    elif push >= 56: 
-        push_grade = "2급"
-    elif push >= 48: 
-        push_grade = "3급"
-    else:
-        push_grade = "불합격"
-
-    if sit >= 86:
-        sit_grade = "특급"
-    elif sit >= 78: 
-        sit_grade = "1급"
-    elif sit >= 70: 
-        sit_grade = "2급"
-    elif sit >= 62: 
-        sit_grade = "3급"
-    else:
-        sit_grade = "불합격"
-
-    if run_grade == "불합격" or push_grade == "불합격" or sit_grade == "불합격":
-        overall = "불합격"
+    if run_grade == "불합격" or push_grade =="불합격" or sit_grade == "불합격" :
+        final_grade = "불합격"
     elif run_grade == "3급" or push_grade == "3급" or sit_grade == "3급":
-        overall = "3급"
+        final_grade = "3급"
     elif run_grade == "2급" or push_grade == "2급" or sit_grade == "2급":
-        overall = "2급"
+        final_grade = "2급"
     elif run_grade == "1급" or push_grade == "1급" or sit_grade == "1급":
-        overall = "1급"
+        final_grade = "1급"       
     else:
-        if push >= 85 and sit >= 95:
-            overall = "최우수 특급전사"
-        else:
-            overall = "특급"
+        if push_ups >= 85 and situps >= 95 :
+            final_grade = "*최우수 특급전사*"
+        else : 
+            final_grade =  "특급전사"
+    return final_grade
 
-        soldiers.append([rank, name, run_sec, overall])
-        push_list.append(push)
+def register_soldier():
+    global total_pushups
 
+    print(f"\n ▶ [신규 용사 데이터 등록]")
+    name = str(input("이름: "))
+    rank = str(input("계급 :"))
+    run_time = float(input("3km 뜀걸음 기록 (예 : 12.30)"))
+    push_ups = int(input("팔굽혀펴기 횟수: "))
+    situps = int(input("윗몸일으키기 횟수: "))
 
-print("\n" + "="*40)
-print(f"부대 체력측정 통계 (총 {len(soldiers)}명)")
-print("="*40)
-print(f"중대 팔굽혀펴기 총합: {total_push}개")
-print(f"부대 최고 팔굽혀펴기: {max(push_list)}개")
-print("-"*40)
+    if run_time < 0 or push_ups < 0 or situps <0:
+        print(">> [오류] 올바르지 않은 기록입니다. 메인 메뉴로 돌아갑니다.")
+        return
+    
+    overall = evaluate_grade(run_time, push_ups, situps)
 
-for s in soldiers:
-    print(f"{s[0]} {s[1]} 결과: {s[3]}")
-print("="*40)
+    total_pushups += push_ups
+    soldiers.append([name, rank, run_time, overall])
+    push_ups_list.append(push_ups)
+
+    print(f">> {rank} {name} 용사의 기록이 성공적으로 저장되었습니다! (등급: {overall})")
+
+def show_statistics():
+    if len(soldiers) == 0:
+        print("\n>> [알림] 아직 등록된 용사 데이터가 없습니다.")
+        return
+    
+    push_ups_list.sort(reverse=True)
+    count = len(soldiers)
+    max_record = max(push_ups_list)
+
+    print("\n" + "=" * 50)
+    print(f" 📊 부대 체력측정 종합 통계 (총 {count}명) 📊")
+    print(f" - 중대 팔굽혀펴기 총합: {total_pushups}개")
+    print(f" - 최고 기록자 점수: {max_record}개")
+    print("-" * 50)
+    for s in soldiers:
+        print(f"[{s[1]} {s[0]}] 종합 등급: {s[3]} (뜀걸음: {s[2]})")
+    print("=" * 50)
+
+while True:
+    user_choice = display_menu()
+
+    if user_choice == "1":
+        register_soldier()
+    elif user_choice == "2" :
+        show_statistics()
+    elif user_choice == "3" :
+        print("\n>> 7군단 강습대대 체력측정 시스템을 종료합니다. 충성!\n")
+        break 
+    else:
+        print("1, 2, 3번 중에서 선택해주세요")
